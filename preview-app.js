@@ -438,9 +438,10 @@ async function buildGeometriesForName(nameText, lowDetail = true) {
     }
 
     const textGeom = new THREE.ExtrudeGeometry(letterShapesFU, {
-        depth: c.baseHeight + c.letterHeight, bevelEnabled: false, curveSegments: curveSegsText, steps: 1
+        depth: c.letterHeight, bevelEnabled: false, curveSegments: curveSegsText, steps: 1
     });
     textGeom.scale(c.mmPerUnit, -c.mmPerUnit, 1);
+    textGeom.translate(0, 0, c.baseHeight); // sit on top of base
     textGeom.computeVertexNormals();
 
     const contours = samplePathCommands(otPath.commands, sampleStep);
