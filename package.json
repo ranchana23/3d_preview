@@ -1,0 +1,7 @@
+{
+  "name": "preview_3d_customer",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npx live-server --open=multiple.html --port=3001"
+  }
+}
