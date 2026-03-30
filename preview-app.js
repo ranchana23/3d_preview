@@ -1,12 +1,76 @@
-// preview-app.js — Customer preview page (simplified, no export)
-// Reads fonts from 3d_nametag/font/ directory
+// preview-app.js — Customer preview page
+// Loads fonts directly from Google Drive (no local font files needed)
 
 import * as THREE from 'https://esm.sh/three@0.168.0';
 import { OrbitControls } from 'https://esm.sh/three@0.168.0/examples/jsm/controls/OrbitControls.js';
 import * as BufferGeometryUtils from 'https://esm.sh/three@0.168.0/examples/jsm/utils/BufferGeometryUtils.js';
 import { SVGLoader } from 'https://esm.sh/three@0.168.0/examples/jsm/loaders/SVGLoader.js';
 
-const FONT_BASE = './3d_nametag/';
+// ==================== Google Drive font manifest ====================
+function driveUrl(id) { return `/drive-font?id=${id}`; }
+
+const FONT_MANIFEST = [
+    { label: 'MNJ Auntie Bold', id: '1mgS-2CuwarfRsQcGEk3nY28Hipp5z1L9' },
+    { label: 'MNJ Lotte Bold', id: '19FrwfOR1EihdeuxWdjvzerOxB0EMbP07' },
+    { label: 'GMCPopcornStrawberry', id: '1TreWRA0DHi7sCac1tS4yMXnpUYukXMIP' },
+    { label: 'GMCWendyGin', id: '11oZhrtkg5v5pVY05JAcs0TQEld7EIotO' },
+    { label: 'MNJ Growingday', id: '1ROzMpl1o3bwkC0NDhmoFXrt18dHqLKrp' },
+    { label: 'MNJ Mochiball', id: '1wxfrXnQCTQcZ1VkOk4N8tHwkUvxGls7s' },
+    { label: 'Google Sans', id: '1cwc2UtHoutT_gpPPjCDeouytWX9xJopk' },
+    { label: 'CkFlowerDemo', id: '11DOMuVosZPiLkhc6iunrJAyIK4K_G4tG' },
+    { label: 'GivePANI 2026', id: '150a-kT8hXpIrmXzKmc_KQ1ElY6dxAfXe' },
+    { label: 'iannnnn DOG', id: '1c3foHtVREy-TxL6Fiz0zvA50utAsxU2_' },
+    { label: 'iannnnn HEN Bold', id: '1iqPKiqNpCeM7W348s9zCjo0b7V1RsHGq' },
+    { label: 'iannnnn TIGER', id: '10Ve-ecF0kgbWatIGxV1WgZmkEgWpKvn8' },
+    { label: 'Itim', id: '144eW9ibgypc3YUnTHbl3pry-YPV5LJnM' },
+    { label: 'maaja', id: '1KZ4giveQZ_8dPk0_vaVgnJ_7h8F79hnF' },
+    { label: 'Mali Medium', id: '1s1sH29FkERbJDksyiEWgpR6PGRxqjWHc' },
+    { label: 'MiDaifuku', id: '1BJfGR3EagfIERPr4vPq7aMwJBeSSCeqo' },
+    { label: 'MiPancake', id: '1cX6qlCdOa7EJKty9Y8hvdReCim8_kxuT' },
+    { label: 'Mitr', id: '1jfHle1fGSyOEScqLh_aNPaaBeTFYs34D' },
+    { label: 'Noto Sans Thai', id: '17Gw7slEt4dNgAKpMRWHJ5dV9Ka5H0Xsv' },
+    { label: 'Noto Thai Looped', id: '1WrUF4dxj5Mctz6airnrSFKpFI5dSi8Qs' },
+    { label: 'SanamDeklen', id: '15A3Tpp97hIqabamaibQu4z6JPxOBE0Nj' },
+    { label: 'Sarabun', id: '1PsSfvjeE6pJBAFfmA18yeNwJfDfZ6x5o' },
+    { label: 'WDB Bangna', id: '1onvGI5LduTSFWagKLqy5V12dMc4NtODX' },
+    { label: 'BarberChop', id: '18_JaEdPfpwN1Zevoo7Rm0ersX3IszEVG' },
+    { label: 'Bear Days', id: '1QKvLGKGzHbWIUbuAvGtr_eW9IzVfFj31' },
+    { label: 'Beaver Punch', id: '13rag_dXy0Gz3WCUFYr2rsS2MfWjHqWAi' },
+    { label: 'Days of Charity', id: '13gDSb9ig2itvGNeqNQ62nFy_0TX7MyBw' },
+    { label: 'Fallin For You', id: '1O9Ty03xa03gbXNfWFnOzuoovuq5q_Weu' },
+    { label: 'Gokhan', id: '1LD4YAsaiArzrXYy3QnARHDBKVNN1SGAJ' },
+    { label: 'Grateful Memories', id: '10rKOaxxGEXFXL6gSyNK2PEO4Uy-4SXe8' },
+    { label: 'Halmera', id: '1Z9ZALgU_4V88N8QcmUSq7ZiFNT8JVK8t' },
+    { label: 'Mailand Demo', id: '1FUz2VXqxlttW07Kf9sYjyk4LLR2QUVIo' },
+    { label: 'Mangabey', id: '1XT_4uK7PHNjkhXzXm-x98jvRdx8fg6Hl' },
+    { label: 'Marimpa', id: '1Q-tUbsyWf5y6Kl28uKn93m4WZUFiNTLA' },
+    { label: 'MomoSignature', id: '1qBOqS4gRIv2ieTT8uYXZHq_vDrXGNtJG' },
+    { label: 'MomoTrust', id: '1tMEiEM6yG67vftjqrawwNHdGKisOw58L' },
+    { label: 'Octosale', id: '1wx0cE7z9flS9GVCEAifePOk2V29yGbtQ' },
+    { label: 'Quicksand', id: '12c1021DRRwg6K7_r_B_7RUT_DTwCIEU0' },
+    { label: 'Raybees', id: '1K_eHXm7KUsuOKmgPseZLgBfAKkKpoIyJ' },
+    { label: 'Rochester Sign.', id: '1rAvEc8Kq4mL0SpIJrkX7iGC16OIQ0jaZ' },
+    { label: 'Sacramento', id: '1ZU9utfRhb3T1mEKrTlN-xE1SzcK3WRAa' },
+    { label: 'Simanja', id: '14ZD3PSGXJihX0KIYFLd-NOaZzWfml5ao' },
+    { label: 'Somelove', id: '14fS_q3-z-qePwBseEiJ0A1i6NG3BYPDp' },
+    { label: 'StardosStencil', id: '1Z3tTv7BarYypEKahhgRVr0LjxaDJiLZE' },
+    { label: 'Super Crawler', id: '1B0qYYpht9I6ISVbYmGoz4SPh7tuXWzcq' },
+    { label: 'TeX Adventor', id: '107iwAMovARc-k7FR2Kw_HI9GNL22gVDu' },
+    { label: 'Ballast Stencil', id: '14dOKzIA6jlwNzzxyWWtIJAFBaSgjV0gC' },
+    { label: 'Bienchen', id: '1Udaybn3nXwWj67jIl6ZbjO300kqp1uJi' },
+    { label: 'Brigadier', id: '1Mt2pmdHWmuUSkgvqPVzosbGqNzORQwrV' },
+    { label: 'fabfelt bold', id: '1EF9kaitd1x--qrY-kc9vG88Z1aVz4Au-' },
+    { label: 'Jack Down', id: '1QPlK41qMqheKnzhQEP2ajrBHjJ0tvRIQ' },
+    { label: 'LillyMae', id: '17pAf2mwa3u4m_4hNRRf1HZ8YOM2MBggU' },
+    { label: 'Nickainley', id: '18f6KlBdckjqyiQeYRs8EKB2lGNoT_rM-' },
+    { label: 'Pecita', id: '1xEPSifhgVraSUy5aiGa5Ryyp-KAkfELB' },
+    { label: 'Roundex', id: '1iwUarIeM99Uxy_zntOLNAQ5sw-URRlh4' },
+    { label: 'Secoline', id: '1oIuiz1d3M52fWCFTrOf2o8zNTBJSNePe' },
+    { label: 'aptos narrow', id: '1BFX1cgzkwBcQpPYNj8VoxfI2QL6Tr-xp' },
+];
+
+const EMOJI_FONT_ID = '1yRPwQWircwI5JRVvC7xnn1fdjdB546tY';
+
 const MSG = document.querySelector('#msg');
 
 // ==================== Scene setup ====================
@@ -14,7 +78,7 @@ const canvas = document.querySelector('#view');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(devicePixelRatio);
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xfef7fb);
+scene.background = new THREE.Color(0xfaf5ff);
 const camera = new THREE.PerspectiveCamera(45, 2, 0.1, 2000);
 camera.position.set(0, 0, 200);
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -72,16 +136,22 @@ function isLikelyFontBuffer(buf) {
 
 let fontBuffer = null;
 let currentFont = null;
-
 let emojiFontBuffer = null;
 let emojiFont = null;
+
+async function fetchFontFromDrive(driveId) {
+    const url = driveUrl(driveId);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const buf = await resp.arrayBuffer();
+    if (!isLikelyFontBuffer(buf)) throw new Error('Not a valid font file');
+    return buf;
+}
 
 async function loadEmojiFont() {
     if (emojiFont) return emojiFont;
     try {
-        const resp = await fetch(FONT_BASE + 'font/font_free/NotoEmoji-Bold.ttf');
-        if (!resp.ok) return null;
-        emojiFontBuffer = await resp.arrayBuffer();
+        emojiFontBuffer = await fetchFontFromDrive(EMOJI_FONT_ID);
         emojiFont = opentype.parse(emojiFontBuffer);
         return emojiFont;
     } catch (e) {
@@ -96,22 +166,16 @@ function isGlyphMissing(g) {
 
 async function loadDefaultFont() {
     if (fontBuffer) return;
-    const resp = await fetch(FONT_BASE + 'iann_b.ttf');
-    if (!resp.ok) throw new Error(`Cannot load default font (HTTP ${resp.status})`);
-    const buf = await resp.arrayBuffer();
-    if (!isLikelyFontBuffer(buf)) throw new Error('Default font is not TTF/OTF');
-    fontBuffer = buf;
+    const first = FONT_MANIFEST[0];
+    if (!first) throw new Error('No fonts in manifest');
+    fontBuffer = await fetchFontFromDrive(first.id);
     MSG.textContent = '';
 }
 
-async function loadFontFromPath(fontPath) {
+async function loadFontById(driveId) {
     try {
-        MSG.textContent = '';
-        const resp = await fetch(encodeURI(fontPath));
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const buf = await resp.arrayBuffer();
-        if (!isLikelyFontBuffer(buf)) throw new Error('Not a valid TTF/OTF file');
-        fontBuffer = buf;
+        MSG.textContent = 'Loading font...';
+        fontBuffer = await fetchFontFromDrive(driveId);
         MSG.textContent = '';
         return true;
     } catch (e) {
@@ -367,7 +431,6 @@ async function buildGeometriesForName(nameText, lowDetail = true) {
         letterShapesFU = shapesFromOffsetContours(contoursFU, c.textStroke, c.mmPerUnit);
     }
 
-    // Raised style
     const textGeom = new THREE.ExtrudeGeometry(letterShapesFU, {
         depth: c.baseHeight + c.letterHeight, bevelEnabled: false, curveSegments: curveSegsText, steps: 1
     });
@@ -390,7 +453,6 @@ async function buildGeometriesForName(nameText, lowDetail = true) {
         return polygonToShape(ptsFU);
     });
 
-    // Ear (hook hole)
     let earGeom = null;
     if (c.earEnabled) {
         const rHoleMM = c.holeDiameter * 0.5;
@@ -507,7 +569,6 @@ async function refreshAll() {
         }
     }
 
-    // Grid layout
     if (models.length > 0) {
         const N = models.length;
         const cols = Math.ceil(Math.sqrt(N));
@@ -535,7 +596,6 @@ async function refreshAll() {
         return;
     }
 
-    // Fit camera to all models
     const allBox = new THREE.Box3();
     for (const m of models) allBox.expandByObject(m.group);
     const allSize = allBox.getSize(new THREE.Vector3());
@@ -550,10 +610,7 @@ async function refreshAll() {
     controls.update();
 
     MSG.textContent = '';
-
     document.querySelector('#preview').disabled = false;
-
-    // Set top view after preview
     setCameraView('top');
 }
 
@@ -588,51 +645,58 @@ function setCameraView(view) {
     controls.update();
 }
 
+// ==================== Watermark overlay ====================
+function buildWatermark() {
+    const el = document.getElementById('watermarkOverlay');
+    if (!el) return;
+    const text = 'Ally.Studio';
+    const cols = 12;
+    const rows = 20;
+    const gap = 120;
+    let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">`;
+    svgContent += `<defs><style>text{font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;fill:rgba(140,100,180,0.10);}</style></defs>`;
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const x = c * gap + (r % 2 ? gap / 2 : 0);
+            const y = r * 38 + 20;
+            svgContent += `<text x="${x}" y="${y}" transform="rotate(-25,${x},${y})">${text}</text>`;
+        }
+    }
+    svgContent += `</svg>`;
+    el.innerHTML = svgContent;
+}
+buildWatermark();
+
 // ==================== Font grid ====================
-async function populateFontGrid() {
+function populateFontGrid() {
     const grid = document.getElementById('fontGrid');
     if (!grid) return;
 
-    let fontPaths = [];
-    try {
-        const resp = await fetch(FONT_BASE + 'font/manifest.json');
-        if (resp.ok) {
-            const manifest = await resp.json();
-            if (Array.isArray(manifest)) fontPaths = manifest;
-        }
-    } catch (e) { console.warn('Could not load font manifest:', e); return; }
-
-    fontPaths = fontPaths.filter(path => path.includes('font/font_free/'));
-    const seen = new Set();
-    let fontIndex = 1;
     const styleEl = document.createElement('style');
     document.head.appendChild(styleEl);
 
-    for (const fontPath of fontPaths) {
-        if (!fontPath || seen.has(fontPath)) continue;
-        seen.add(fontPath);
-        const fontNumber = String(fontIndex).padStart(2, '0');
-        fontIndex++;
-
-        const fileName = fontPath.split('/').pop().replace(/\.(ttf|otf)$/i, '');
-        let safeName = fileName.replace(/[^a-zA-Z0-9]/g, '_');
-        if (/^\d/.test(safeName)) safeName = 'font_' + safeName;
+    FONT_MANIFEST.forEach((entry, idx) => {
+        const fontNumber = String(idx + 1).padStart(2, '0');
+        const safeName = entry.label.replace(/[^a-zA-Z0-9]/g, '_');
         const fontFamilyName = `FP_${safeName}`;
-        styleEl.textContent += `@font-face { font-family: '${fontFamilyName}'; src: url('${encodeURI(FONT_BASE + fontPath)}'); font-display: swap; }\n`;
+        const fontUrl = driveUrl(entry.id);
+        styleEl.textContent += `@font-face { font-family: '${fontFamilyName}'; src: url('${fontUrl}'); font-display: swap; }\n`;
 
         const chip = document.createElement('button');
         chip.type = 'button';
         chip.className = 'font-chip';
         chip.textContent = `F${fontNumber}`;
         chip.style.fontFamily = `'${fontFamilyName}', sans-serif`;
-        chip.dataset.value = fontPath;
+        chip.title = entry.label;
         chip.addEventListener('click', async () => {
             grid.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
             chip.classList.add('active');
-            await loadFontFromPath(FONT_BASE + fontPath);
+            await loadFontById(entry.id);
         });
         grid.appendChild(chip);
-    }
+
+        if (idx === 0) chip.classList.add('active');
+    });
 }
 
 // ==================== Event listeners ====================
