@@ -527,7 +527,6 @@ async function refreshAll() {
     const hasVerts = (g) => g && g.attributes && g.attributes.position && g.attributes.position.count > 0;
 
     MSG.textContent = `Generating ${names.length} model(s)...`;
-    document.querySelector('#preview').disabled = true;
 
     for (let i = 0; i < names.length; i++) {
         const name = names[i];
@@ -592,8 +591,7 @@ async function refreshAll() {
 
     if (models.length === 0) {
         MSG.textContent = 'Failed to create models';
-        document.querySelector('#preview').disabled = false;
-        return;
+            return;
     }
 
     const allBox = new THREE.Box3();
@@ -610,7 +608,6 @@ async function refreshAll() {
     controls.update();
 
     MSG.textContent = '';
-    document.querySelector('#preview').disabled = false;
     setCameraView('top');
 }
 
@@ -692,6 +689,7 @@ function populateFontGrid() {
             grid.querySelectorAll('.font-chip').forEach(el => el.classList.remove('active'));
             chip.classList.add('active');
             await loadFontById(entry.id);
+            await refreshAll();
         });
         grid.appendChild(chip);
 
@@ -700,10 +698,6 @@ function populateFontGrid() {
 }
 
 // ==================== Event listeners ====================
-document.querySelector('#preview').addEventListener('click', async () => {
-    await refreshAll();
-});
-
 document.querySelectorAll('.view-btn[data-view]').forEach(btn => {
     btn.addEventListener('click', () => setCameraView(btn.dataset.view));
 });
