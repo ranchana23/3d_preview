@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Ally.Studio — 3D Name Tag Preview</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -44,10 +44,10 @@
         /* ===== TOP BAR ===== */
         .topbar {
             flex-shrink: 0;
-            padding: 16px 24px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             background: var(--surface);
             backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--border);
@@ -61,20 +61,20 @@
             flex-shrink: 0;
         }
         .brand-logo {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
             background: linear-gradient(135deg, #a855f7, #ec4899);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
             box-shadow: 0 4px 16px rgba(168,85,247,0.25);
         }
         .brand-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
             background: linear-gradient(135deg, #a855f7, #ec4899);
             -webkit-background-clip: text;
@@ -92,22 +92,12 @@
 
         .topbar-sep {
             width: 1px;
-            height: 32px;
+            height: 28px;
             background: var(--border);
             flex-shrink: 0;
         }
 
-        /* ===== CONTROLS ROW ===== */
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-            overflow-x: auto;
-        }
-        .controls::-webkit-scrollbar { height: 0; }
-
+        /* ===== NAME INPUT ===== */
         .ctrl-group {
             display: flex;
             align-items: center;
@@ -127,8 +117,8 @@
         }
 
         .input-text {
-            width: 180px;
-            padding: 10px 14px;
+            width: 160px;
+            padding: 9px 14px;
             font-size: 14px;
             font-weight: 600;
             border: 2px solid var(--border-strong);
@@ -145,21 +135,51 @@
         }
         .input-text::placeholder { color: var(--text-muted); font-weight: 500; }
 
-        /* Font chips in topbar */
+        #msg {
+            font-size: 11px;
+            color: var(--accent2);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* ===== FONT BAR ===== */
+        .font-bar {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            z-index: 99;
+            overflow: hidden;
+        }
+        .font-bar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .font-bar-label i {
+            color: var(--accent);
+            margin-right: 3px;
+        }
         .font-scroll {
             display: flex;
             gap: 5px;
-            max-width: 420px;
             overflow-x: auto;
-            padding: 2px;
+            padding: 2px 0;
+            flex: 1;
         }
-        .font-scroll::-webkit-scrollbar { height: 4px; }
+        .font-scroll::-webkit-scrollbar { height: 3px; }
         .font-scroll::-webkit-scrollbar-track { background: transparent; }
         .font-scroll::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.15); border-radius: 10px; }
 
         .font-chip {
-            padding: 8px 12px;
-            font-size: 12px;
+            padding: 7px 11px;
+            font-size: 11px;
             font-weight: 700;
             text-align: center;
             border: 2px solid var(--border);
@@ -176,22 +196,16 @@
             border-color: var(--accent);
             color: var(--accent);
             background: var(--accent-soft);
-            transform: translateY(-1px);
         }
         .font-chip.active {
             border-color: var(--accent);
             background: linear-gradient(135deg, #a855f7, #ec4899);
             color: #fff;
             box-shadow: 0 3px 12px var(--accent-glow);
-            transform: translateY(-1px);
         }
-
-        #msg {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            white-space: nowrap;
-            flex-shrink: 0;
+        .font-chip.loading {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         /* ===== VIEWPORT ===== */
@@ -205,19 +219,20 @@
             height: 100%;
             display: block;
             background: linear-gradient(180deg, #faf5ff 0%, #f5eeff 50%, #fdf2f8 100%);
+            touch-action: none;
         }
 
         /* View control buttons */
         .view-controls {
             position: absolute;
-            top: 14px;
-            right: 14px;
+            top: 10px;
+            right: 10px;
             display: flex;
             gap: 4px;
             z-index: 50;
         }
         .view-btn {
-            width: 36px; height: 36px;
+            width: 34px; height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -235,7 +250,26 @@
             box-shadow: var(--shadow);
             color: var(--accent);
             border-color: var(--accent);
-            transform: translateY(-1px);
+        }
+
+        /* ===== NOTICE BAR ===== */
+        .notice {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(236,72,153,0.06));
+            border-top: 1px solid var(--border);
+            text-align: center;
+            z-index: 100;
+        }
+        .notice p {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .notice .notice-icon {
+            color: var(--accent2);
+            margin-right: 4px;
         }
 
         /* ===== WATERMARK OVERLAY ===== */
@@ -251,20 +285,33 @@
             height: 100%;
         }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 860px) {
+        /* ===== MOBILE (< 640px) ===== */
+        @media (max-width: 640px) {
             .topbar {
-                flex-wrap: wrap;
-                padding: 12px 16px;
+                padding: 10px 14px;
                 gap: 10px;
             }
+            .brand-logo { width: 32px; height: 32px; font-size: 13px; border-radius: 9px; }
+            .brand-name { font-size: 16px; }
+            .brand-tag { font-size: 9px; }
             .topbar-sep { display: none; }
-            .controls {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
+            .input-text { width: 120px; padding: 8px 10px; font-size: 13px; }
+            .ctrl-label { font-size: 11px; }
+
+            .font-bar { padding: 6px 14px; gap: 6px; }
+            .font-chip { padding: 6px 9px; font-size: 10px; border-width: 1.5px; border-radius: 8px; }
+
+            .view-controls { top: 8px; right: 8px; }
+            .view-btn { width: 30px; height: 30px; font-size: 11px; border-radius: 8px; }
+
+            .notice { padding: 8px 14px; }
+            .notice p { font-size: 11px; }
+        }
+
+        /* ===== TABLET (641-860px) ===== */
+        @media (min-width: 641px) and (max-width: 860px) {
+            .topbar { padding: 12px 16px; }
             .input-text { width: 140px; }
-            .font-scroll { max-width: 100%; }
         }
     </style>
 </head>
@@ -280,17 +327,17 @@
             </div>
         </div>
         <div class="topbar-sep"></div>
-        <div class="controls">
-            <div class="ctrl-group">
-                <span class="ctrl-label"><i class="fa fa-pen-nib"></i> Name</span>
-                <input type="text" id="text" class="input-text" placeholder="Enter your name" value="Ranchana" />
-            </div>
-            <div class="ctrl-group">
-                <span class="ctrl-label"><i class="fa fa-heart"></i> Font</span>
-                <div class="font-scroll" id="fontGrid"></div>
-            </div>
-            <span id="msg"></span>
+        <div class="ctrl-group">
+            <span class="ctrl-label"><i class="fa fa-pen-nib"></i> Name</span>
+            <input type="text" id="text" class="input-text" placeholder="พิมพ์ชื่อที่ต้องการ" value="Ranchana" />
         </div>
+        <span id="msg"></span>
+    </div>
+
+    <!-- FONT BAR -->
+    <div class="font-bar">
+        <span class="font-bar-label"><i class="fa fa-heart"></i> Font</span>
+        <div class="font-scroll" id="fontGrid"></div>
     </div>
 
     <!-- VIEWPORT -->
@@ -301,8 +348,12 @@
             <button class="view-btn" data-view="top" title="Top"><i class="fa fa-circle-dot"></i></button>
             <button class="view-btn" data-view="side" title="Side"><i class="fa fa-arrow-right"></i></button>
         </div>
-        <!-- Watermark overlay -->
         <div class="watermark-overlay" id="watermarkOverlay"></div>
+    </div>
+
+    <!-- NOTICE -->
+    <div class="notice">
+        <p><i class="fa fa-info-circle notice-icon"></i>ภาพนี้เป็นตัวอย่างคร่าวๆ นะคะ ทางร้านจะปรับความหนาและระยะห่างตัวอักษรให้สวยอีกทีก่อนผลิตค่ะ ไม่ต้องห่วงเลย~</p>
     </div>
 
     <script type="module" src="./preview-app.js"></script>
