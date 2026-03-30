@@ -7,7 +7,13 @@ import * as BufferGeometryUtils from 'https://esm.sh/three@0.168.0/examples/jsm/
 import { SVGLoader } from 'https://esm.sh/three@0.168.0/examples/jsm/loaders/SVGLoader.js';
 
 // ==================== Google Drive font manifest ====================
-function driveUrl(id) { return `/drive-font?id=${id}`; }
+// ← Deploy cf-worker.js to Cloudflare Workers แล้ววาง URL ตรงนี้
+const CF_WORKER_URL = 'https://3d-preview.imp-ranchana.workers.dev';
+
+const IS_LOCAL = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+function driveUrl(id) {
+    return IS_LOCAL ? `/drive-font?id=${id}` : `${CF_WORKER_URL}?id=${id}`;
+}
 
 const FONT_MANIFEST = [
     { label: 'MNJ Auntie Bold', id: '1mgS-2CuwarfRsQcGEk3nY28Hipp5z1L9' },
